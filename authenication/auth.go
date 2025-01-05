@@ -22,6 +22,7 @@ func Login(c *gin.Context, pool *pgxpool.Pool) {
 			"error":   err.Error(),
 			"message": "Invalid identifier/password are invalid",
 		})
+		return
 	}
 
 	ok, err := argon2.VerifyEncoded([]byte(password), []byte(user.Password))
@@ -31,16 +32,18 @@ func Login(c *gin.Context, pool *pgxpool.Pool) {
 			"error":   err.Error(),
 			"message": "Invalid identifier/password are invalid",
 		})
+		return
 	}
 
 	if ok {
 
-		new_session, session_creation_err := models.CreateSession(pool, user.ID)
+		session_id, session_creation_err := models.CreateSession(pool, user.ID)
 
-		session, session_fetch_err := models.GetSessionByID(pool, new_session.ID)
+		session, session_fetch_err := models.GetSessionByID(pool, session_id)
 
 		if session_creation_err != nil || session_fetch_err != nil {
 			c.JSON(400, gin.H{})
+			return
 		}
 
 		c.JSON(200, gin.H{
@@ -48,19 +51,23 @@ func Login(c *gin.Context, pool *pgxpool.Pool) {
 			"expires_in":   3600,
 			"access_token": session.Token,
 		})
+		return
 
 	} else {
 		c.JSON(400, gin.H{
 			"error":   err.Error(),
 			"message": "Invalid identifier/password are invalid",
 		})
+		return
 	}
 
 }
 
 func Register(c *gin.Context, pool *pgxpool.Pool) {
+
 	// Get user details
 	username := c.PostForm("username")
+	gender := c.PostForm("gender")
 	email := c.PostForm("email")
 	mobile_number := c.PostForm("mobile_number")
 	first_name := c.PostForm("first_name")
@@ -69,19 +76,20 @@ func Register(c *gin.Context, pool *pgxpool.Pool) {
 	// Get password
 	password := c.PostForm("password")
 
-	user_id, err := models.CreateUser(pool, first_name, last_name, surname, email, username, mobile_number, password)
+	err := models.CreateUser(pool, first_name, last_name, surname, email, username, mobile_number, gender, password)
 
 	if err != nil {
 		c.JSON(400, gin.H{
 			"error":   err.Error(),
-			"message": "Invalid identifier/password are invalid",
+			"message": "Invalid parameter were provided",
 		})
+		return
 	}
 
 	c.JSON(200, gin.H{
 		"message": "Account created successfully",
-		"id":      user_id,
 	})
+
 }
 
 func Logout(c *gin.Context, pool *pgxpool.Pool) {
@@ -95,6 +103,7 @@ func Logout(c *gin.Context, pool *pgxpool.Pool) {
 			"error":   session_fetch_err.Error(),
 			"message": "session not found",
 		})
+		return
 	}
 
 	rows, session_delete_err := models.DeleteSession(pool, session.ID)
@@ -104,6 +113,7 @@ func Logout(c *gin.Context, pool *pgxpool.Pool) {
 			"error":   session_delete_err.Error(),
 			"message": "Invalid identifier/password are invalid",
 		})
+		return
 	}
 
 	c.JSON(200, gin.H{

@@ -86,25 +86,25 @@ func GetUserbyID(pool *pgxpool.Pool, id int) (User, error) {
 	return user, nil
 }
 
-func CreateUser(pool *pgxpool.Pool, first_name string, last_name string, surname string, email string, username string, mobile_number string, password string) (int, error) {
+func CreateUser(pool *pgxpool.Pool, first_name string, last_name string, surname string, email string, username string, mobile_number string, gender string, password string) error {
 
-	id := 0
+	
 	argon := argon2.DefaultConfig()
 
 	ctx := context.Background()
 
 	encoded_password, encoded_password_err := argon.HashEncoded([]byte(password))
 	if encoded_password_err != nil {
-		return id, fmt.Errorf("encoded password error: %v", encoded_password_err)
+		return fmt.Errorf("encoded password error: %v", encoded_password_err)
 	}
 
-	query := `INSERT INTO users (first_name, last_name, surname, email, username, mobile_number, password) VALUES ($1, $2, $3, $4, $5, $6, $7)`
-	err := pool.QueryRow(ctx, query, first_name, last_name, surname, email, username, mobile_number, string(encoded_password)).Scan(&id)
+	query := `INSERT INTO users (first_name, last_name, surname, email, username, mobile_number,gender, password) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)`
+	_, err := pool.Exec(ctx, query, first_name, last_name, surname, email, username, mobile_number, gender, string(encoded_password))
 	if err != nil {
-		return id, fmt.Errorf("create user: %v", err)
+		return fmt.Errorf("create user: %v", err)
 	}
 
-	return id, nil
+	return nil
 
 }
 
