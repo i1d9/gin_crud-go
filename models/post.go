@@ -6,7 +6,7 @@ type Post struct {
 	Title string `json:"title"`
 	Body  string `json:"body"`
 	User_ID string `json:"user_id"`
-	Created_At *time.Time `json:"created_at"`
+	Inserted_At *time.Time `json:"inserted_at"`
 	Updated_At *time.Time `json:"updated_at"`
 }
 
