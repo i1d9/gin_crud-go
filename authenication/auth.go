@@ -1,7 +1,6 @@
 package authenication
 
 import (
-	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/i1d9/gin_crud-go/middleware"
 	"github.com/i1d9/gin_crud-go/models"

@@ -8,7 +8,6 @@ import (
 	"math/rand"
 
 	"github.com/jackc/pgx/v5/pgxpool"
-	"github.com/pelletier/go-toml/query"
 )
 
 const charset = "abcdefghijklmnopqrstuvwxyz" +
