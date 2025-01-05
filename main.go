@@ -42,8 +42,8 @@ func setupDatabaseTables(pool *pgxpool.Pool) {
 
 	ctx := context.Background()
 	pool.Exec(ctx, `CREATE TABLE IF NOT EXISTS users (id bigserial primary key,first_name text not null, last_name text, surname text, email text not null unique,username text not null unique, mobile_number text not null unique, password text not null,gender varchar(12) not null, inserted_at timestamp, updated_at timestamp)`)
-	pool.Exec(ctx, `CREATE TABLE IF NOT EXISTS sessions (id bigserial primary key, user_id int references(users) not null, token text not null unique, status text, expires_at timestamp not null, type text not null, inserted_at timestamp, updated_at timestamp)`)
-	pool.Exec(ctx, `CREATE TABLE IF NOT EXISTS posts (id bigserial primary key, user_id int references(users) not null, title text, body text, inserted_at timestamp, updated_at timestamp)`)
+	pool.Exec(ctx, `CREATE TABLE IF NOT EXISTS sessions (id bigserial primary key, user_id int not null, token text not null unique, status text, expires_at timestamp not null, type text not null, inserted_at timestamp, updated_at timestamp, constraint fk_user foreign key (user_id) references users(id) on delete cascade)`)
+	pool.Exec(ctx, `CREATE TABLE IF NOT EXISTS posts (id bigserial primary key, user_id int  not null, title text, body text, inserted_at timestamp, updated_at timestamp, constraint fk_user foreign key (user_id) references users(id) on delete cascade)`)
 
 	pool.Exec(ctx, `CREATE UNIQUE INDEX IF NOT EXISTS idx_users_email ON users(email)`)
 	pool.Exec(ctx, `CREATE UNIQUE INDEX IF NOT EXISTS idx_users_username ON users(username)`)

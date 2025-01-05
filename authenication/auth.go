@@ -38,11 +38,21 @@ func Login(c *gin.Context, pool *pgxpool.Pool) {
 	if ok {
 
 		session_id, session_creation_err := models.CreateSession(pool, user.ID)
+		if session_creation_err != nil {
+			c.JSON(400, gin.H{
+
+				"error": session_creation_err.Error(),
+			})
+			return
+		}
 
 		session, session_fetch_err := models.GetSessionByID(pool, session_id)
 
 		if session_creation_err != nil || session_fetch_err != nil {
-			c.JSON(400, gin.H{})
+			c.JSON(400, gin.H{
+
+				"error": session_fetch_err.Error(),
+			})
 			return
 		}
 

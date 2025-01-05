@@ -98,8 +98,8 @@ func CreateUser(pool *pgxpool.Pool, first_name string, last_name string, surname
 		return fmt.Errorf("encoded password error: %v", encoded_password_err)
 	}
 
-	query := `INSERT INTO users (first_name, last_name, surname, email, username, mobile_number,gender, password) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)`
-	_, err := pool.Exec(ctx, query, first_name, last_name, surname, email, username, mobile_number, gender, string(encoded_password))
+	query := `INSERT INTO users (first_name, last_name, surname, email, username, mobile_number,gender, password, inserted_at, updated_at) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)`
+	_, err := pool.Exec(ctx, query, first_name, last_name, surname, email, username, mobile_number, gender, string(encoded_password), time.Now(), time.Now())
 	if err != nil {
 		return fmt.Errorf("create user: %v", err)
 	}
