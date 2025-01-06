@@ -6,8 +6,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/i1d9/gin_crud-go/authenication"
-	"github.com/i1d9/gin_crud-go/middleware"
-	"github.com/i1d9/gin_crud-go/models"
+
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/spf13/viper"
 
@@ -45,8 +44,8 @@ func setupDatabaseTables(pool *pgxpool.Pool) {
 	ctx := context.Background()
 	pool.Exec(ctx, `CREATE TABLE IF NOT EXISTS users (id bigserial primary key,first_name text not null, last_name text, surname text, email text not null unique,username text not null unique, mobile_number text not null unique, password text not null,gender varchar(12) not null, inserted_at timestamp, updated_at timestamp)`)
 	pool.Exec(ctx, `CREATE TABLE IF NOT EXISTS sessions (id bigserial primary key, user_id int not null, token text not null unique, status text, expires_at timestamp not null, type text not null, inserted_at timestamp, updated_at timestamp, constraint fk_user foreign key (user_id) references users(id) on delete cascade)`)
-	pool.Exec(ctx, `CREATE TABLE IF NOT EXISTS posts (id bigserial primary key, user_id int  not null, title text, body text, inserted_at timestamp, updated_at timestamp, constraint fk_user foreign key (user_id) references users(id) on delete cascade)`)
-
+	
+	
 	pool.Exec(ctx, `CREATE UNIQUE INDEX IF NOT EXISTS idx_users_email ON users(email)`)
 	pool.Exec(ctx, `CREATE UNIQUE INDEX IF NOT EXISTS idx_users_username ON users(username)`)
 
@@ -80,43 +79,6 @@ func main() {
 			authenication.Logout(c, dbpool)
 		})
 
-	}
-
-	// User Routes
-	user := router.Group("/v1/users")
-	user.Use(middleware.VerifyAccessToken(dbpool))
-	{
-		user.GET("/search", func(c *gin.Context) {
-			authenication.Login(c, dbpool)
-		})
-
-		user.GET("/profile", func(c *gin.Context) {
-			authenication.Login(c, dbpool)
-		})
-
-	}
-
-	// Post Routes
-	post := router.Group("/v1/posts")
-	post.Use(middleware.VerifyAccessToken(dbpool))
-	{
-
-		post.GET("/", func(c *gin.Context) {
-			models.Get(c, dbpool)
-		})
-
-		post.POST("/create", func(c *gin.Context) {
-			models.Create(c, dbpool)
-		})
-
-		post.PUT("/edit", func(c *gin.Context) {
-			models.Update(c, dbpool)
-		})
-
-		post.DELETE(("/delete"), func(c *gin.Context) {
-			models.Delete(c, dbpool)
-		})
-		
 	}
 
 	router.Run(":8080")
