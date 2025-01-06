@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"fmt"
+
 	"github.com/gin-gonic/gin"
 	"github.com/i1d9/gin_crud-go/authenication"
 	"github.com/i1d9/gin_crud-go/middleware"
@@ -101,19 +102,19 @@ func main() {
 	{
 
 		post.GET("/", func(c *gin.Context) {
-			models.GetPosts(c, dbpool)
+			models.Get(c, dbpool)
 		})
 
 		post.POST("/create", func(c *gin.Context) {
-			models.CreatePost(c, dbpool)
+			models.Create(c, dbpool)
 		})
 
 		post.PUT("/edit", func(c *gin.Context) {
-			models.UpdatePost(c, dbpool)
+			models.Update(c, dbpool)
 		})
 
 		post.DELETE(("/delete"), func(c *gin.Context) {
-			models.DeletePost(c, dbpool)
+			models.Delete(c, dbpool)
 		})
 		
 	}

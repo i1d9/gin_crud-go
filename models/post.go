@@ -20,13 +20,13 @@ type Post struct {
 	Updated_At  *time.Time `json:"updated_at"`
 }
 
-func GetPosts(c *gin.Context, pool *pgxpool.Pool) {
+func Get(c *gin.Context, pool *pgxpool.Pool) {
 
 	search_term, exists := c.GetQuery("term")
 
 	if exists {
 
-		users, err := searchPost(pool, search_term)
+		users, err := SearchPost(pool, search_term)
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 			return
@@ -35,7 +35,7 @@ func GetPosts(c *gin.Context, pool *pgxpool.Pool) {
 		c.JSON(http.StatusOK, users)
 	} else {
 
-		users, err := getPosts(pool)
+		users, err := GetPosts(pool)
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 			return
@@ -47,7 +47,7 @@ func GetPosts(c *gin.Context, pool *pgxpool.Pool) {
 
 }
 
-func getPosts(pool *pgxpool.Pool) ([]Post, error) {
+func GetPosts(pool *pgxpool.Pool) ([]Post, error) {
 
 	ctx := context.Background()
 
@@ -78,7 +78,7 @@ func getPosts(pool *pgxpool.Pool) ([]Post, error) {
 	return posts, nil
 }
 
-func createPost(pool *pgxpool.Pool, title string, body string, user_id int) error {
+func CreatePost(pool *pgxpool.Pool, title string, body string, user_id int) error {
 
 	ctx := context.Background()
 
@@ -91,7 +91,7 @@ func createPost(pool *pgxpool.Pool, title string, body string, user_id int) erro
 	return nil
 }
 
-func CreatePost(c *gin.Context, pool *pgxpool.Pool) {
+func Create(c *gin.Context, pool *pgxpool.Pool) {
 
 	title := c.PostForm("title")
 	body := c.PostForm("body")
@@ -104,7 +104,7 @@ func CreatePost(c *gin.Context, pool *pgxpool.Pool) {
 	}
 
 	castedSession, _ := session.(Session)
-	err := createPost(pool, title, body, castedSession.User_ID)
+	err := CreatePost(pool, title, body, castedSession.User_ID)
 
 	if err != nil {
 		c.JSON(400, gin.H{
@@ -120,7 +120,7 @@ func CreatePost(c *gin.Context, pool *pgxpool.Pool) {
 
 }
 
-func updatePost(pool *pgxpool.Pool, post_id int, title string, body string) (int, error) {
+func UpdatePost(pool *pgxpool.Pool, post_id int, title string, body string) (int, error) {
 
 	ctx := context.Background()
 	rows := 0
@@ -136,7 +136,7 @@ func updatePost(pool *pgxpool.Pool, post_id int, title string, body string) (int
 	return rows, nil
 }
 
-func UpdatePost(c *gin.Context, pool *pgxpool.Pool) {
+func Update(c *gin.Context, pool *pgxpool.Pool) {
 
 	post_id, exists := c.GetQuery("id")
 
@@ -153,7 +153,7 @@ func UpdatePost(c *gin.Context, pool *pgxpool.Pool) {
 			return
 		}
 
-		_, err = updatePost(pool, post_id, title, body)
+		_, err = UpdatePost(pool, post_id, title, body)
 
 		if err != nil {
 			c.JSON(400, gin.H{
@@ -177,7 +177,7 @@ func UpdatePost(c *gin.Context, pool *pgxpool.Pool) {
 
 }
 
-func deletePost(pool *pgxpool.Pool, post_id int) (int, error) {
+func DeletePost(pool *pgxpool.Pool, post_id int) (int, error) {
 
 	ctx := context.Background()
 	rows := 0
@@ -194,7 +194,7 @@ func deletePost(pool *pgxpool.Pool, post_id int) (int, error) {
 
 }
 
-func DeletePost(c *gin.Context, pool *pgxpool.Pool) {
+func Delete(c *gin.Context, pool *pgxpool.Pool) {
 
 	post_id, exists := c.GetQuery("id")
 
@@ -209,7 +209,7 @@ func DeletePost(c *gin.Context, pool *pgxpool.Pool) {
 			return
 		}
 
-		_, err = deletePost(pool, post_id)
+		_, err = DeletePost(pool, post_id)
 
 		if err != nil {
 			c.JSON(400, gin.H{
@@ -233,7 +233,7 @@ func DeletePost(c *gin.Context, pool *pgxpool.Pool) {
 
 }
 
-func searchPost(pool *pgxpool.Pool, term string) ([]Post, error) {
+func SearchPost(pool *pgxpool.Pool, term string) ([]Post, error) {
 
 	ctx := context.Background()
 
