@@ -83,7 +83,7 @@ func CreatePost(pool *pgxpool.Pool, title string, body string, user_id int) erro
 	ctx := context.Background()
 
 	query := `INSERT INTO posts (title, body, user_id,  inserted_at, updated_at) VALUES ($1, $2, $3, $4, $5)`
-	_, err := pool.Exec(ctx, query, title, body, user_id, time.Now(), time.Now())
+	_, err := pool.Exec(ctx, query, title, body, user_id, time.Now().UTC(), time.Now().UTC())
 	if err != nil {
 		return fmt.Errorf("create post: %v", err)
 	}
@@ -126,7 +126,7 @@ func UpdatePost(pool *pgxpool.Pool, post_id int, title string, body string) (int
 	rows := 0
 	query := "UPDATE posts SET title = $1, body = $2, updated_at = $3 WHERE ID = $4"
 
-	res, err := pool.Exec(ctx, query, title, body, time.Now(), post_id)
+	res, err := pool.Exec(ctx, query, title, body, time.Now().UTC(), post_id)
 
 	if err != nil {
 		return rows, fmt.Errorf("update user: %v", err)

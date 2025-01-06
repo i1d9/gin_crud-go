@@ -53,7 +53,7 @@ func CreateSession(pool *pgxpool.Pool, user_id int) (int, error) {
 
 	query := `INSERT INTO sessions (user_id, token, status, type, expires_at, inserted_at, updated_at) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING id`
 
-	err := pool.QueryRow(ctx, query, user_id, token, "active", "access_token", time.Now().Add(time.Hour*1), time.Now(), time.Now()).Scan(&id)
+	err := pool.QueryRow(ctx, query, user_id, token, "active", "access_token", time.Now().UTC().Add(time.Hour*1), time.Now().UTC(), time.Now().UTC()).Scan(&id)
 	if err != nil {
 		return int(id), fmt.Errorf("create session: %v", err)
 	}

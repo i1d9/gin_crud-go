@@ -76,7 +76,7 @@ func main() {
 			authenication.Register(c, dbpool)
 		})
 
-		auth.POST("/logout", func(c *gin.Context) {
+		auth.DELETE("/logout", func(c *gin.Context) {
 			authenication.Logout(c, dbpool)
 		})
 

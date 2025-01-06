@@ -1,12 +1,13 @@
 package middleware
 
 import (
+	"net/http"
+	"strings"
+	"time"
+
 	"github.com/gin-gonic/gin"
 	"github.com/i1d9/gin_crud-go/models"
 	"github.com/jackc/pgx/v5/pgxpool"
-	"log"
-	"net/http"
-	"strings"
 )
 
 func ExtractAccessToken(c *gin.Context) string {
@@ -36,11 +37,26 @@ func VerifyAccessToken(pool *pgxpool.Pool) gin.HandlerFunc {
 		session, err := models.FindSessionbyToken(pool, token)
 
 		if err != nil {
-			log.Fatalf("Error searching for users: %v\n", err)
+			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error(), "message": "something went wrong"})
+			c.Abort()
+			return
 		}
 
-		c.Set("session", session)
+		now := time.Now().UTC()
 
-		c.Next()
+		session_expiry := session.Expires_At.UTC()
+
+		if now.Before(session_expiry) {
+			c.Set("session", session)
+
+			c.Next()
+
+		} else {
+
+			c.JSON(http.StatusUnauthorized, gin.H{"error": "unauthorized", "message": "invalid token"})
+			c.Abort()
+			return
+		}
+
 	}
 }
