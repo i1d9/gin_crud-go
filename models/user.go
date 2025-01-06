@@ -88,7 +88,6 @@ func GetUserbyID(pool *pgxpool.Pool, id int) (User, error) {
 
 func CreateUser(pool *pgxpool.Pool, first_name string, last_name string, surname string, email string, username string, mobile_number string, gender string, password string) error {
 
-	
 	argon := argon2.DefaultConfig()
 
 	ctx := context.Background()
@@ -108,14 +107,38 @@ func CreateUser(pool *pgxpool.Pool, first_name string, last_name string, surname
 
 }
 
-func UpdateUser() {
+func UpdateUser(pool *pgxpool.Pool, user_id int, first_name string, last_name string, email string, mobile_number string) (int, error) {
 
+	ctx := context.Background()
+	rows := 0
+	query := "UPDATE users SET first_name = $1, last_name = $2, email = $3, mobile_number = $4 WHERE ID = $5"
+
+	res, err := pool.Exec(ctx, query, first_name, last_name, email, mobile_number, user_id)
+
+	if err != nil {
+		return rows, fmt.Errorf("update user: %v", err)
+	}
+	rows = int(res.RowsAffected())
+
+	return rows, nil
 }
 
-func DeleteUser() {
+func DeleteUser(pool *pgxpool.Pool, id int) (int, error) {
+
+	ctx := context.Background()
+	rows := 0
+	query := "DELETE FROM users WHERE ID = $1"
+
+	res, err := pool.Exec(ctx, query, id)
+
+	if err != nil {
+		return rows, fmt.Errorf("delete user: %v", err)
+	}
+	rows = int(res.RowsAffected())
+
+	return rows, nil
 
 }
-
 func SearchUsers(pool *pgxpool.Pool, term string) ([]User, error) {
 
 	ctx := context.Background()

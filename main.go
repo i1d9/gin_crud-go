@@ -6,6 +6,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/i1d9/gin_crud-go/authenication"
 	"github.com/i1d9/gin_crud-go/middleware"
+	"github.com/i1d9/gin_crud-go/models"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/spf13/viper"
 
@@ -98,9 +99,23 @@ func main() {
 	post := router.Group("/v1/posts")
 	post.Use(middleware.VerifyAccessToken(dbpool))
 	{
-		post.POST("/create", func(c *gin.Context) {
-			authenication.Login(c, dbpool)
+
+		post.GET("/", func(c *gin.Context) {
+			models.GetPosts(c, dbpool)
 		})
+
+		post.POST("/create", func(c *gin.Context) {
+			models.CreatePost(c, dbpool)
+		})
+
+		post.PUT("/edit", func(c *gin.Context) {
+			models.UpdatePost(c, dbpool)
+		})
+
+		post.DELETE(("/delete"), func(c *gin.Context) {
+			models.DeletePost(c, dbpool)
+		})
+		
 	}
 
 	router.Run(":8080")

@@ -35,7 +35,7 @@ func FindSessionbyToken(pool *pgxpool.Pool, token string) (Session, error) {
 
 	query := "SELECT id, user_id, token, expires_at, type, status, inserted_at, updated_at FROM sessions WHERE status = 'active' AND token = $1"
 	if err := pool.QueryRow(ctx, query, token).Scan(
-		&session.ID, &session.User_ID, &session.Token, &session.Status, &session.Expires_At, &session.Type, &session.Inserted_At, &session.Updated_At,
+		&session.ID, &session.User_ID, &session.Token, &session.Expires_At, &session.Type, &session.Status, &session.Inserted_At, &session.Updated_At,
 	); err != nil {
 		return session, fmt.Errorf("Session by Token:  %v", err)
 	}
@@ -62,7 +62,20 @@ func CreateSession(pool *pgxpool.Pool, user_id int) (int, error) {
 
 }
 
-func UpdateSession() {
+func UpdateSession(pool *pgxpool.Pool, id int, status string, user_id int, token_type string) (int, error) {
+
+	ctx := context.Background()
+	rows := 0
+	query := "UPDATE sessions SET user_id = $1, status = $2, type = $3 WHERE ID = $4"
+
+	res, err := pool.Exec(ctx, query, user_id, status, token_type, id)
+
+	if err != nil {
+		return rows, fmt.Errorf("update session: %v", err)
+	}
+	rows = int(res.RowsAffected())
+
+	return rows, nil
 
 }
 
@@ -80,10 +93,6 @@ func DeleteSession(pool *pgxpool.Pool, id int) (int, error) {
 	rows = int(res.RowsAffected())
 
 	return rows, nil
-
-}
-
-func SearchSession() {
 
 }
 
